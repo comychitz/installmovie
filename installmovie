@@ -36,13 +36,24 @@ if [ -z "${n}" ]; then
     n=$(basename "${m}")
 fi
 
-output="/tmp/${n}"
-
 echo "Installing '${n}'..."
 
-$(ffmpeg -i "${m}" -i "${s}" -c copy -c:s mov_text "${output}" && mv "${output}" "${destination}")
-result=$?
+output="/tmp/${n}"
 
+
+if [ "${m: -4}" = ".mkv" ]; then
+    echo "Detected .mkv file type, converting to .m4v..."
+    inputFileName=$(basename ${m})
+    temporary="/tmp/${inputFileName%.mkv}-input.m4v"
+    ffmpeg -i ${m} -c copy ${temporary}
+    m=${temporary}
+    ffmpeg -i ${m} -i ${s} -c copy -c:s mov_text "${output}" && mv "${output}" "${destination}"
+    rm ${temporary}
+else
+    ffmpeg -i ${m} -i ${s} -c copy -c:s mov_text "${output}" && mv "${output}" "${destination}"
+fi
+
+result=$?
 if [ $result -ne 0 ]; then
     echo "FAILED"
     exit 1
