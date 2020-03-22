@@ -1,0 +1,52 @@
+#!/bin/bash
+
+# puts s file into mp4 file and moves it to the auto installation
+# directory for iTunes
+
+scriptn=$(basename "${0}")
+destination=~/Music/iTunes/iTunes\ Media/Automatically\ Add\ to\ TV.localized/
+
+usage() { 
+    echo "Usage: $scriptn [-m <path>] [-s <path>] [-n <name>]" 1>&2; 
+
+    echo "Example: "
+    echo "$ $scriptn -m path/to/movie/file.mp4 -s path/to/subtitle/file.srt -n optionalName.mp4"
+    exit 1
+}
+
+while getopts "n:m:s:" o; do
+    case "${o}" in
+        s)
+            s=${OPTARG} ;;
+        m)
+            m=${OPTARG} ;;
+        n)
+            n=${OPTARG} ;;
+        *)
+            usage ;;
+    esac
+done
+shift $((OPTIND-1))
+
+if [ -z "${m}" ]; then
+    usage
+fi
+
+if [ -z "${n}" ]; then
+    n=$(basename "${m}")
+fi
+
+output="/tmp/${n}"
+
+echo "Installing '${n}'..."
+
+$(ffmpeg -i "${m}" -i "${s}" -c copy -c:s mov_text "${output}" && mv "${output}" "${destination}")
+result=$?
+
+if [ $result -ne 0 ]; then
+    echo "FAILED"
+    exit 1
+fi
+
+echo "Done"
+
