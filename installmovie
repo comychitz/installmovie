@@ -1,16 +1,16 @@
 #!/bin/bash
 
-# puts s file into mp4 file and moves it to the auto installation
-# directory for iTunes
+# puts subtitle file into mp4 file and moves it to the auto installation
+# directory for TV on macOS.
 
-scriptn=$(basename "${0}")
+scriptname=$(basename "${0}")
 destination=~/Music/iTunes/iTunes\ Media/Automatically\ Add\ to\ TV.localized/
 
 usage() { 
-    echo "Usage: $scriptn [-m <path>] [-s <path>] [-n <name>]" 1>&2; 
+    echo "Usage: $scriptname [-m <path>] [-s <path>] [-n <name>]" 1>&2; 
 
     echo "Example: "
-    echo "$ $scriptn -m path/to/movie/file.mp4 -s path/to/subtitle/file.srt -n optionalName.mp4"
+    echo "$ $scriptname -m path/to/movie/file.mp4 -s path/to/subtitle/file.srt -n optionalName.mp4"
     exit 1
 }
 
