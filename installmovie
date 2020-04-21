@@ -36,28 +36,40 @@ if [ -z "${n}" ]; then
     n=$(basename "${m}")
 fi
 
+ln -s ~/Music/iTunes/iTunes\ Media/Automatically\ Add\ to\ TV.localized/ wormhole
+
 echo "Installing '${n}'..."
 
 output="/tmp/${n}"
 
+subtitleArgs=""
+if [ ! -z "${s}" ]; then
+    subtitleArgs="-i ${s}"
+fi
 
 if [ "${m: -4}" = ".mkv" ]; then
     echo "Detected .mkv file type, converting to .m4v..."
     inputFileName=$(basename ${m})
     temporary="/tmp/${inputFileName%.mkv}-input.m4v"
-    ffmpeg -i ${m} -c copy ${temporary}
+    ffmpeg -i ${m} -c copy ${temporary} &>/dev/null  
     m=${temporary}
-    ffmpeg -i ${m} -i ${s} -c copy -c:s mov_text "${output}" && mv "${output}" "${destination}"
-    rm ${temporary}
-else
-    ffmpeg -i ${m} -i ${s} -c copy -c:s mov_text "${output}" && mv "${output}" "${destination}"
 fi
+
+ffmpeg -i ${m} ${subtitleArgs} -c copy -c:s mov_text "${output}" &>/dev/null && mv "${output}" "${destination}"
 
 result=$?
 if [ $result -ne 0 ]; then
     echo "FAILED"
     exit 1
 fi
+
+#
+# cleanup
+#
+if [ ! -z "${temporary}" ]; then
+    rm ${temporary}
+fi
+rm -f wormhole
 
 echo "Done"
 
